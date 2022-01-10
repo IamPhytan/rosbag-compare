@@ -12,7 +12,7 @@ from tqdm import tqdm
 class RosbagComparator:
     def __init__(self, path: Union[Path, str]) -> None:
         self._folder = Path(path)
-        self.paths = [f for f in self._folder.glob("*.bag")]
+        self.paths = list(self.folder.glob("*.bag"))
         self.topics = {}
 
     def extract_data(self):
@@ -60,16 +60,15 @@ class RosbagComparator:
 
     @staticmethod
     def get_topics(filename: Union[Path, str]):
+        """Get topics from a filename"""
         with Reader(filename) as bag:
             return list(bag.topics.keys())
-
-    def get_bagfilepaths(self):
-        return self.paths
 
     def to_json(self, p: Union[Path, str] = None):
         if not self.topics:
             warnings.warn(
-                "Topics are not extracted. Use extract_data() before using to_json() instead",
+                "Topics are not extracted."
+                "Use extract_data() before using to_json() instead",
                 RuntimeWarning,
             )
             self.extract_data()
@@ -82,5 +81,5 @@ class RosbagComparator:
 if __name__ == "__main__":
     data_path = Path("data")
     rosbag_comp = RosbagComparator(data_path)
-    rosbag_comp
+    rosbag_comp.extract_data()
     rosbag_comp.to_json()
