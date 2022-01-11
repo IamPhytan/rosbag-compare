@@ -10,6 +10,9 @@ from tqdm import tqdm
 
 
 class RosbagComparator:
+    """Rosbag Comparator : Compare the topics of a list of rosbags.
+    Determine which topics are missing for each rosbag, by comparing with others"""
+
     def __init__(self, path: Union[Path, str]) -> None:
         self._folder = Path(path)
         self.topics = {}
@@ -76,7 +79,7 @@ class RosbagComparator:
         with Reader(filename) as bag:
             return list(bag.topics.keys())
 
-    def to_json(self, p: Union[Path, str] = None):
+    def to_json(self, path: Union[Path, str] = None):
         """Export topics dictionary to a json file
 
         Args:
@@ -91,9 +94,9 @@ class RosbagComparator:
             )
             self.extract_data()
 
-        p = f"topics_{self.folder.name}.json" if p is None else p
-        with open(p, "w") as f:
-            json.dump(self.topics, f)
+        path = f"topics_{self.folder.name}.json" if path is None else path
+        with open(path, "w", encoding="utf-8") as file:
+            json.dump(self.topics, file)
 
 
 if __name__ == "__main__":
