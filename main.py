@@ -204,3 +204,6 @@ if __name__ == "__main__":
     # rosbag_comp.to_json()
     # rosbag_comp.plot()
     a = RosbagComparator.from_dict(rosbag_comp.topics)
+    # b = RosbagComparator.from_json("topics_data.json")
+    # rosbag_comp.plot()
+    # b.plot()
