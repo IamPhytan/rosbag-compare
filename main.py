@@ -108,10 +108,12 @@ class RosbagComparator:
             json.dump(self.topics, file)
 
     def plot(self, img_path: Union[Path, str] = None):
-        """Show the missing topics between the rosbags in each bag using a scatterplot with matplotlib
+        """Show the missing topics between the rosbags in each bag
+         using a scatterplot with matplotlib
 
         Args:
-            img_path (Union[Path, str], optional): Figure export path. Defaults to None. If None, figure will be saved in `missing_topics.png`
+            img_path (Union[Path, str], optional): Figure export path.
+            Defaults to None. If None, figure will be saved in `missing_topics.png`
         """
         self.verify_data_extraction()
 
@@ -120,13 +122,12 @@ class RosbagComparator:
         # Create a set of all topics inside difference values
         diff_set = set(chain.from_iterable(diff.values()))
 
-        # Names and topics list, sorted topics list
-        names_list = list(diff.keys())
+        # Topics list and sorted topics list
         tops_list = list(diff_set)
         tops_sort = sorted(tops_list)
 
         # Instantiate figure
-        fig, ax = plt.subplots(figsize=(10, 5))
+        fig, ax = plt.subplots(figsize=(10, 7.5), num="Missing topics comparison")
 
         # Function to create sorted axes labels
         def axsetter(xunits, yunits, ax=None, sort=True, reversed_y=True):
@@ -134,14 +135,14 @@ class RosbagComparator:
             if sort:
                 xunits = sorted(xunits)
                 yunits = sorted(yunits, reverse=reversed_y)
-            us = plt.plot(
+            units = plt.plot(
                 xunits, [yunits[0]] * len(xunits), [xunits[0]] * len(yunits), yunits
             )
-            for u in us:
-                u.remove()
+            for unit in units:
+                unit.remove()
 
         # Sort axes labels
-        axsetter(names_list, tops_list, ax=ax)
+        axsetter(list(diff.keys()), tops_list, ax=ax)
 
         # Sorted diff dict
         diff_sort = {k: sorted(v) for k, v in sorted(diff.items())}
@@ -150,19 +151,20 @@ class RosbagComparator:
         norm = mtp.colors.Normalize(vmin=0, vmax=len(tops_sort) - 1)
         colors = {k: norm(i) for i, k in enumerate(tops_sort)}
 
-        for run, tops in diff_sort.items():
+        for name, tops in diff_sort.items():
             cols = [plt.cm.turbo(colors[top]) for top in tops]
-            ax.scatter([run] * len(tops), tops, c=cols, cmap="turbo")
+            ax.scatter([name] * len(tops), tops, c=cols, cmap="turbo")
 
-        # plt.draw()
-        # ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha="right")
+        # Rotate x axis labels by 45 degrees
+        ax.set_xticklabels(sorted(list(diff.keys())), rotation=45, ha="right")
 
+        # Figure parameters
         fig.suptitle(f"Missing topics in the rosbags of '{self.folder.name}'")
         plt.tight_layout()
         plt.show()
 
-        path = img_path or "missing_topics.png"
-        fig.savefig(path)
+        # Save figure to file
+        fig.savefig(img_path or "missing_topics.png")
 
 
 if __name__ == "__main__":
