@@ -1,10 +1,12 @@
 """Rosbag comparator - Compare topics between ROS1 rosbags"""
 
+from __future__ import annotations
+
 import json
 import warnings
 from itertools import chain
 from pathlib import Path
-from typing import Union
+from typing import List, Union
 
 import matplotlib as mtp
 import matplotlib.pyplot as plt
@@ -20,7 +22,48 @@ class RosbagComparator:
         self._folder = Path(path)
         self.topics = {}
 
-    def extract_data(self):
+    @property
+    def folder(self):
+        """The folder property."""
+        return self._folder
+
+    @folder.setter
+    def folder(self, value: Union[Path, str]):
+        """Setter for `folder`"""
+        if Path(value).is_dir():
+            self._folder = value
+        else:
+            raise ValueError(f"{value} is not a valid directory")
+
+    @classmethod
+    def from_dict(cls, topics: dict) -> RosbagComparator:
+        """Instantiate RosbagComparator with a topics dictionary
+
+        Args:
+            topics (dict): Topics dictionary
+
+        Returns:
+            RosbagComparator: Instance of RosbagComparator
+        """
+        folder_name = Path.cwd()
+        rbag_comp = cls(folder_name)
+        rbag_comp.topics = topics
+        return rbag_comp
+
+    @classmethod
+    def from_json(cls, json_path: Union[Path, str]) -> RosbagComparator:
+        """Instantiate RosbagComparator from a JSON file path
+
+        Args:
+            json_path (Union[Path, str]): Path to a JSON file
+
+        Returns:
+            RosbagComparator: Instance of RosbagComparator
+        """
+        with open(json_path, "r", encoding="utf-8") as file:
+            return cls.from_dict(json.load(file))
+
+    def extract_data(self) -> None:
         """Extract all the topics cointaned in the rosbags at the path {self.folder}"""
         paths = list(self.folder.glob("*.bag"))
 
@@ -57,21 +100,8 @@ class RosbagComparator:
             "common": list(common_set),
         }
 
-    @property
-    def folder(self):
-        """The folder property."""
-        return self._folder
-
-    @folder.setter
-    def folder(self, value: Union[Path, str]):
-        """Setter for `folder`"""
-        if Path(value).is_dir():
-            self._folder = value
-        else:
-            raise ValueError(f"{value} is not a valid directory")
-
     @staticmethod
-    def get_topics(filename: Union[Path, str]):
+    def get_topics(filename: Union[Path, str]) -> List:
         """Get a list of the topics in a rosbag file
 
         Args:
@@ -94,7 +124,7 @@ class RosbagComparator:
             )
             self.extract_data()
 
-    def to_json(self, path: Union[Path, str] = None):
+    def to_json(self, path: Union[Path, str] = None) -> None:
         """Export topics dictionary to a json file
 
         Args:
@@ -107,7 +137,7 @@ class RosbagComparator:
         with open(path, "w", encoding="utf-8") as file:
             json.dump(self.topics, file)
 
-    def plot(self, img_path: Union[Path, str] = None):
+    def plot(self, img_path: Union[Path, str] = None) -> None:
         """Show the missing topics between the rosbags in each bag
          using a scatterplot with matplotlib
 
@@ -170,6 +200,7 @@ class RosbagComparator:
 if __name__ == "__main__":
     data_path = Path("data")
     rosbag_comp = RosbagComparator(data_path)
-    rosbag_comp.extract_data()
-    rosbag_comp.to_json()
-    rosbag_comp.plot()
+    # rosbag_comp.extract_data()
+    # rosbag_comp.to_json()
+    # rosbag_comp.plot()
+    a = RosbagComparator.from_dict(rosbag_comp.topics)
