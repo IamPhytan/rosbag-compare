@@ -1,4 +1,4 @@
-"""Rosbag comparator - Compare topics between ROS1 rosbags"""
+"""Comparator class for comparing topics between ROS1 rosbags"""
 
 from __future__ import annotations
 
@@ -137,11 +137,12 @@ class RosbagComparator:
         with open(path, "w", encoding="utf-8") as file:
             json.dump(self.topics, file)
 
-    def plot(self, img_path: Union[Path, str] = None) -> None:
+    def plot(self, save_fig: bool = False, img_path: Union[Path, str] = None) -> None:
         """Show the missing topics between the rosbags in each bag
          using a scatterplot with matplotlib
 
         Args:
+            save_fig (bool, optional): Indicate whether or not the generated figure will be saved. Defaults to False
             img_path (Union[Path, str], optional): Figure export path.
             Defaults to None. If None, figure will be saved in `missing_topics.png`
         """
@@ -191,19 +192,10 @@ class RosbagComparator:
         # Figure parameters
         fig.suptitle(f"Missing topics in the rosbags of '{self.folder.name}'")
         plt.tight_layout()
+
+        if save_fig:
+            # Save figure to file
+            fig.savefig(img_path or "missing_topics.png")
+
+        # Show figure
         plt.show()
-
-        # Save figure to file
-        fig.savefig(img_path or "missing_topics.png")
-
-
-if __name__ == "__main__":
-    data_path = Path("data")
-    rosbag_comp = RosbagComparator(data_path)
-    # rosbag_comp.extract_data()
-    # rosbag_comp.to_json()
-    # rosbag_comp.plot()
-    a = RosbagComparator.from_dict(rosbag_comp.topics)
-    # b = RosbagComparator.from_json("topics_data.json")
-    # rosbag_comp.plot()
-    # b.plot()
