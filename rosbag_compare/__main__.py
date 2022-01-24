@@ -23,7 +23,7 @@ Available options are:
 Version:
 --------
 
-- rosbag-compare v0.0.0
+- rosbag-compare v0.1.0
 """
 
 
