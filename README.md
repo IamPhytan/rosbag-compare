@@ -65,6 +65,14 @@ rbag_comp.plot(save_fig=True, img_path="topics_summary.jpg")  # Save figure to p
 
 Pull requests are welcome and don't hesitate to open issues
 
+Development requirements can be installed using pip :
+
+```console
+$ python -m venv venv
+$ source venv/bin/activate
+$ pip install -r requirements/requirements-dev.txt
+```
+
 ## License
 
 This project is licensed under a [MIT](LICENSE) license
