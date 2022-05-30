@@ -151,7 +151,80 @@ class RosbagComparator:
         with open(path, "w", encoding="utf-8") as file:
             json.dump(self.topics, file)
 
-    def plot(self, save_fig: bool = False, img_path: Union[Path, str] = None) -> None:
+    def plot(self, save_fig: bool = False, img_path: Union[Path, str] = None):
+        if self.mode == "available":
+            self.plot_available(save_fig, img_path)
+        elif self.mode == "missing":
+            self.plot_missing(save_fig, img_path)
+
+    def plot_available(
+        self, save_fig: bool = False, img_path: Union[Path, str] = None
+    ) -> None:
+        """Show the available topics between the rosbags in each bag
+         using a scatterplot with matplotlib
+
+        Args:
+            save_fig (bool, optional): Indicate whether or not the generated figure will be saved. Defaults to False
+            img_path (Union[Path, str], optional): Figure export path.
+            Defaults to None. If None, figure will be saved in `available_topics.png`
+        """
+        self.verify_data_extraction()
+
+        # Get the topics dictionary
+        tops = self.topics["topics"]
+        # Create a set of all topics inside topics values
+        diff_set = set(chain.from_iterable(tops.values()))
+
+        # Topics list and sorted topics list
+        tops_list = list(diff_set)
+        tops_sort = sorted(tops_list)
+
+        # Instantiate figure
+        fig, ax = plt.subplots(num="Available topics comparison")
+
+        # Function to create sorted axes labels
+        def axsetter(xunits, yunits, ax=None, sort=True, reversed_y=True):
+            ax = ax or plt.gca()
+            if sort:
+                xunits = sorted(xunits)
+                yunits = sorted(yunits, reverse=reversed_y)
+            units = plt.plot(
+                xunits, [yunits[0]] * len(xunits), [xunits[0]] * len(yunits), yunits
+            )
+            for unit in units:
+                unit.remove()
+
+        # Sort axes labels
+        axsetter(list(tops.keys()), tops_list, ax=ax)
+
+        # Sorted tops dict
+        tops_sort_dict = {k: sorted(v) for k, v in sorted(tops.items())}
+
+        # Colors normalisation
+        norm = mtp.colors.Normalize(vmin=0, vmax=len(tops_sort) - 1)
+        colors = {k: norm(i) for i, k in enumerate(tops_sort)}
+
+        for name, name_tops in tops_sort_dict.items():
+            cols = [plt.cm.turbo(colors[top]) for top in name_tops]
+            ax.scatter([name] * len(name_tops), name_tops, c=cols, cmap="turbo")
+
+        # Rotate x axis labels by 45 degrees
+        ax.set_xticklabels(sorted(list(tops.keys())), rotation=45, ha="right")
+
+        # Figure parameters
+        fig.suptitle(f"Available topics in the rosbags of '{self.folder.name}'")
+        plt.tight_layout()
+
+        if save_fig:
+            # Save figure to file
+            fig.savefig(img_path or "available_topics.png")
+
+        # Show figure
+        plt.show()
+
+    def plot_missing(
+        self, save_fig: bool = False, img_path: Union[Path, str] = None
+    ) -> None:
         """Show the missing topics between the rosbags in each bag
          using a scatterplot with matplotlib
 
