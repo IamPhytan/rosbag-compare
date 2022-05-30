@@ -37,6 +37,13 @@ def parse_arguments():
     """Parse bagfile name"""
     parser = argparse.ArgumentParser()
     parser.add_argument(
+        "-m",
+        "--mode",
+        help="""Comparison mode""",
+        default="available",
+        choices=["available", "missing"],
+    )
+    parser.add_argument(
         "-b",
         "--bagfolder",
         help="""Path to the folder that contains rosbags""",
@@ -56,7 +63,7 @@ def main():
     args = parse_arguments()
     data_path = Path(args.bagfolder)
     is_plot = args.plot
-    rosbag_comp = RosbagComparator(data_path)
+    rosbag_comp = RosbagComparator(data_path, mode=args.mode)
     rosbag_comp.extract_data()
     rosbag_comp.to_json()
     if is_plot:

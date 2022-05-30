@@ -18,8 +18,9 @@ class RosbagComparator:
     """Rosbag Comparator : Compare the topics of a list of rosbags.
     Determine which topics are missing for each rosbag, by comparing with others"""
 
-    def __init__(self, path: Union[Path, str]) -> None:
+    def __init__(self, path: Union[Path, str], mode="available") -> None:
         self._folder = Path(path)
+        self._mode = mode
         self.topics = {}
 
     @property
@@ -34,6 +35,19 @@ class RosbagComparator:
             self._folder = value
         else:
             raise ValueError(f"{value} is not a valid directory")
+
+    @property
+    def mode(self):
+        """The mode property."""
+        return self._mode
+
+    @mode.setter
+    def mode(self, value: str):
+        """Setter for `mode`"""
+        if value.lower() in ("available", "missing"):
+            self._mode = value
+        else:
+            raise ValueError(f"{value} is not a valid comparison mode")
 
     @classmethod
     def from_dict(cls, topics: dict) -> RosbagComparator:
