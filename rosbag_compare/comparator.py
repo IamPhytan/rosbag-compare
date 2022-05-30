@@ -160,8 +160,10 @@ class RosbagComparator:
     def plot_available(
         self, save_fig: bool = False, img_path: Union[Path, str] = None
     ) -> None:
-        """Show the available topics between the rosbags in each bag
+        """(WIP) Show the available topics between the rosbags in each bag
          using a scatterplot with matplotlib
+
+        There may be lots of topics for one axis though ^^", the figure may be hard to read
 
         Args:
             save_fig (bool, optional): Indicate whether or not the generated figure will be saved. Defaults to False
